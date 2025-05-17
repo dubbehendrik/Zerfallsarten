@@ -1,287 +1,127 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from io import BytesIO
-import requests
+import matplotlib.image as mpimg
 
-# Streamlit Layout
+# -----------------------------
+# Funktionen für Berechnungen
+# -----------------------------
+
+def berechne_omega(n):
+    return 2 * np.pi * n / 60
+
+def berechne_filmdicke(V_LK, eta_LK, rho_LK, omega, r, beta_deg):
+    beta_rad = np.radians(beta_deg)
+    delta = ((3 * V_LK * eta_LK) / (rho_LK * 2 * np.pi * omega**2 * r**2 * np.sin(beta_rad))) ** (1/3)
+    return delta * 1e6  # in µm
+
+def berechne_kennzahlen(eta_LK, rho_LK, sigma, D, v_LK, omega):
+    Oh = eta_LK / np.sqrt(rho_LK * sigma * D)
+    Kb = (v_LK**2 * rho_LK) / (sigma * D**3 * omega**2 * D**3 * rho_LK)
+    We = (rho_LK * v_LK**2 * D) / sigma
+    B = (We**0.5) * (Kb**(5/6)) * (Oh**(10/36))
+    return Oh, Kb, We, B
+
+# -----------------------------
+# App Layout & Benutzeroberfläche
+# -----------------------------
+
 st.set_page_config(layout="wide")
 
-col_title, col_logo = st.columns([4, 1])
+st.title("Zerfallsarten an Rotationsglocke")
 
-with col_logo:
-    st.image("HSE-Logo.jpg", width=1000)
-
-#with col_title:
-st.title("Bestimmung des Wärmeübergangskoeffizienten")
-
-# Hinweistext
 with st.expander("ℹ️ Hinweise zur Verwendung"):
     st.markdown("""
-Diese App dient zur Bestimmung des Wärmeübergangskoeffizienten $\\alpha$ anhand gemessener Temperaturverläufe.
+Diese App berechnet dimensionslose Kennzahlen für die Lackzerstäubung an Rotationsglocken:
 
-Die zugrunde liegende Gleichung lautet:
+- **Ohnesorge-Zahl (Oh)**
+- **Kantenbelastung (K_b)**
+- **Weber-Zahl (We)**
+- **Betriebskennzahl (B)**
+
+Zusätzlich wird die **Filmdicke am Glockenrand (δ)** berechnet.
+
+Formel für die Filmdicke:
+""")
+    st.latex(r"\delta = \sqrt[3]{ \frac{3 \cdot \dot{V}_{LK} \cdot \eta_{LK} }{ \rho_{LK} \cdot 2\pi \omega^2 r^2 \cdot \sin(\beta) } }")
+    st.markdown("""
+Abbildung in Anlehnung an:  
+Weckerle, G., Dissertation, Universität Stuttgart, 2003 (Pulver-Slurry).
 """)
 
-    st.latex(r"T(t) = T_\infty - (T_\infty - T_0) \cdot e^{- \frac{ \alpha A }{ m c_p } t}")
+# -----------------------------
+# Eingabefelder für Parameter
+# -----------------------------
+col_plot, col_values = st.columns([0.6, 0.4])
 
-    st.markdown("""
-Du hast zwei Möglichkeiten:
-- **Eigene Excel-Datei hochladen** anhand des Templates (mit Zeit- und Temperaturdaten + Parametern).
-- Oder **Beispieldaten verwenden**, um die Funktion zu testen.
+with col_values:
+    st.subheader("Parameter")
 
-Die App berechnet per Kurvenfit den optimalen Wert für $\\alpha$ und zeigt zusätzlich $R^2$ und RMSE als Qualitätskennzahlen an.
+    V_LK = st.number_input("Lackvolumenstrom [ml/min]", value=60.0)
+    n = st.number_input("Drehzahl [1/min]", value=50000.0)
+    d = st.number_input("Glockendurchmesser [mm]", value=60.0)
+    beta = st.number_input("Konturwinkel [°]", value=55.0)
+    rho_LK = st.number_input("Lackdichte [kg/m³]", value=1300.0)
+    eta_LK = st.number_input("Viskosität [mPa·s]", value=20.0)
+    sigma = st.number_input("Oberflächenspannung [mN/m]", value=30.0)
 
-Wichtig: Wenn eine Excel-Datei geladen wurde muss diese entfernt werden (X) um wieder auf Beispieldaten zu wechseln. 
-""")
+# -----------------------------
+# Umrechnungen & Berechnungen
+# -----------------------------
+# Umrechnungen in SI-Einheiten
+V_LK_m3s = V_LK / 1e6 / 60  # ml/min -> m³/s
+eta_LK_Pas = eta_LK / 1000   # mPa·s -> Pa·s
+sigma_Npm = sigma / 1000     # mN/m -> N/m
+D_m = d / 1000               # mm -> m
+r_m = D_m / 2                # Radius in m
 
-# --- Datei-Upload vom Nutzer ---
-uploaded_file = st.file_uploader("Lade eine Excel-Datei hoch", type=["xlsx"])
+omega = berechne_omega(n)
+delta = berechne_filmdicke(V_LK_m3s, eta_LK_Pas, rho_LK, omega, r_m, beta)
 
-# --- User lädt eigene Datei hoch → SessionState setzen & rerun ---
-if uploaded_file is not None and uploaded_file != st.session_state.get("uploaded_file"):
-    st.session_state.clear()
-    st.session_state.uploaded_file = uploaded_file
-    st.session_state.file_to_use = uploaded_file
-    st.session_state.source_label = uploaded_file.name
-    st.rerun()
+# Für Betriebspunkt beliebige v_LK (z.B. Umfangsgeschwindigkeit)
+v_LK = omega * r_m
 
-# --- User klickt im Upload X → SessionState löschen ---
-if uploaded_file is None and "file_to_use" in st.session_state and st.session_state.get("uploaded_file") is not None:
-    st.session_state.clear()
-    st.rerun()
+Oh, Kb, We, B = berechne_kennzahlen(eta_LK_Pas, rho_LK, sigma_Npm, D_m, v_LK, omega)
 
-# --- Beispiel-Buttons ---
-col_demo1, col_demo2, col_demo3 = st.columns(3)
-
-with col_demo1:
-    if st.button("Beispiel 1"):
-        st.session_state.clear()
-        url = "https://raw.githubusercontent.com/dubbehendrik/temperaturprofil/main/Exp_Temperaturprofil_ideal.xlsx"
-        response = requests.get(url)
-        if response.status_code == 200:
-            st.session_state.file_to_use = BytesIO(response.content)
-            st.session_state.source_label = "Beispiel 1 geladen"
-            st.session_state.uploaded_file = None
-            st.rerun()
-
-with col_demo2:
-    if st.button("Beispiel 2"):
-        st.session_state.clear()
-        url = "https://raw.githubusercontent.com/dubbehendrik/temperaturprofil/main/Exp_Temperaturprofil_real.xlsx"
-        response = requests.get(url)
-        if response.status_code == 200:
-            st.session_state.file_to_use = BytesIO(response.content)
-            st.session_state.source_label = "Beispiel 2 geladen"
-            st.session_state.uploaded_file = None
-            st.rerun()
-
-with col_demo3:
-    with open("Exp_Temperaturprofil_ideal.xlsx", "rb") as f:
-        st.download_button("Template herunterladen", f, file_name="Exp_Temperaturprofil_ideal.xlsx")
-
-# --- Anzeige welcher Datei geladen ist + Entfernen-Button ---
-# --- Anzeige welcher Datei geladen ist ---
-if "file_to_use" in st.session_state:
-    col_file, col_remove = st.columns([8, 2])
-    with col_file:
-        st.success(f"{st.session_state.source_label}")
-    with col_remove:
-        # ❌ Entfernen-Button nur bei Beispieldaten anzeigen
-        if st.session_state.get("uploaded_file") is None:
-            if st.button("❌ Entfernen"):
-                st.session_state.clear()
-                st.rerun()
-
-
-# --- Temperaturmodell Funktion ---
-def temperature_model(t, alpha, cp, A, m, T0, T_inf):
-    return T_inf - (T_inf - T0) * np.exp(-alpha * A * t / (m * cp))
-
-# --- R² Funktion ---
-def calculate_r_squared(y_true, y_pred):
-    residuals = y_true - y_pred
-    ss_res = np.sum(residuals**2)
-    ss_tot = np.sum((y_true - np.mean(y_true))**2)
-    r_squared = 1 - (ss_res / ss_tot)
-    return r_squared
-
-# --- RMSE Funktion ---
-def calculate_rmse(y_true, y_pred):
-    return np.sqrt(np.mean((y_true - y_pred)**2))
-
-# --- Verarbeitung der Datei wenn vorhanden ---
-if "file_to_use" in st.session_state and "df" not in st.session_state:
-    file_like = st.session_state.get("file_to_use")
-    if file_like is not None:
-        df_raw = pd.read_excel(file_like)
-
-
-if "file_to_use" in st.session_state and st.session_state["file_to_use"] is not None:
-    df_raw = pd.read_excel(st.session_state["file_to_use"])
-    
-    times = df_raw.iloc[:, 0].dropna().values
-    temps = df_raw.iloc[:, 1].dropna().values
-    min_len = min(len(times), len(temps))
-    times = times[:min_len]
-    temps = temps[:min_len]
-    st.session_state.df = pd.DataFrame({"Zeit_s": times, "Temperatur_C": temps})
-
-    # Parameter auslesen
-    params = pd.read_excel(st.session_state.file_to_use, usecols=[5], skiprows=1, nrows=5, header=None)
-    st.session_state.cp = float(params.iloc[0, 0])
-    st.session_state.A = float(params.iloc[1, 0])
-    st.session_state.m = float(params.iloc[2, 0])
-    st.session_state.T0 = float(params.iloc[3, 0])
-    st.session_state.T_inf = float(params.iloc[4, 0])
-
-if "df" in st.session_state:
-    df = st.session_state.df
-
-    col_plot, col_inputs = st.columns([0.65, 0.35])
-
-    with col_plot:
-        st.subheader("Temperaturverlauf")
-
-        time_min = float(df['Zeit_s'].min())
-        time_max = float(df['Zeit_s'].max())
-        time_range = st.slider("Wähle den betrachteten Zeitbereich:",
-                               min_value=time_min,
-                               max_value=time_max,
-                               value=(time_min, time_max),
-                               step=1.0)
-
-        df_cut = df[(df['Zeit_s'] >= time_range[0]) & (df['Zeit_s'] <= time_range[1])].copy()
-        df_cut['Zeit_s'] = df_cut['Zeit_s'] - df_cut['Zeit_s'].min()
-
-        # --- Plot-Placeholder: Der Plot wird hier immer reingerendert ---
-        plot_placeholder = st.empty()
-
-    st.markdown("""
-    <style>
-    .param-block { margin-bottom: 1rem; }
-    .param-label { margin-top: 0.2rem; font-weight: 500; }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    with col_inputs:
-        st.subheader("Parameter")
-        
-        # Wärmekapazität
-        cp = st.number_input(label="", value=st.session_state.cp, key="cp_input")
-        st.markdown(r"Wärmekapazität $c_p\ \left[\frac{J}{\mathrm{kg}\,K}\right]$", unsafe_allow_html=True)
-        
-    
-        # Oberfläche
-        A = st.number_input(label="", value=st.session_state.A, key="A_input")
-        st.markdown(r"Oberfläche $A\ [m^2]$", unsafe_allow_html=True)
-        
-    
-        # Masse
-        m = st.number_input(label="", value=st.session_state.m, key="m_input")
-        st.markdown(r"Masse $m\ [kg]$", unsafe_allow_html=True)
-        
-    
-        # Anfangstemperatur
-        T0 = st.number_input(label="", value=st.session_state.T0, key="T0_input")
-        st.markdown(r"Anfangstemperatur $T_0\ [^\circ C]$", unsafe_allow_html=True)
-        
-    
-        # Umgebungstemperatur
-        T_inf = st.number_input(label="", value=st.session_state.T_inf, key="Tinf_input")
-        st.markdown(r"Umgebungstemperatur $T_\infty\ [^\circ C]$", unsafe_allow_html=True)
-        
-            
-        calculate_clicked = st.button("Calculate")
-
-    # --- Plot jetzt erzeugen ---
-    fig, ax = plt.subplots()
-    ax.plot(df_cut['Zeit_s'], df_cut['Temperatur_C'], 'ro', label="Experiment")
-
-    # --- Falls Calculate gedrückt: Simulation ergänzen ---
-    if calculate_clicked:
-        try:
-            popt, _ = curve_fit(lambda t, alpha: temperature_model(t, alpha, cp, A, m, T0, T_inf),
-                                df_cut['Zeit_s'].values, df_cut['Temperatur_C'].values,
-                                p0=[10.0], bounds=(0, np.inf))
-            alpha_fit = popt[0]
-
-            T_fit = temperature_model(df_cut['Zeit_s'].values, alpha_fit, cp, A, m, T0, T_inf)
-            r_squared = calculate_r_squared(df_cut['Temperatur_C'].values, T_fit)
-            rmse = calculate_rmse(df_cut['Temperatur_C'].values, T_fit)
-
-            # --- Fit-Linie hinzufügen ---
-            ax.plot(df_cut['Zeit_s'], T_fit, 'b-', label="Simulation")
-
-            # --- Fit-Werte als Textbox ---
-            ax.text(0.05, 0.95,
-                    f"$\\alpha_{{fit}}$ = {alpha_fit:.2f} $\\frac{{W}}{{m^2K}}$\n$R^2$ = {r_squared:.4f}\nRMSE = {rmse:.2f} °C",
-                    transform=ax.transAxes,
-                    verticalalignment='top',
-                    bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
-
-            with st.expander("\u2753 Hilfe zur Interpretation"):
-                st.markdown(r'''
-                **R² (Bestimmtheitsmaß)**:
-                - Gibt an, wie gut das Modell die Daten erklärt.
-                - Werte nahe 1 bedeuten eine sehr gute Anpassung.
-
-                **RMSE (Root Mean Square Error)**:
-                - Gibt die durchschnittliche Abweichung zwischen Messung und Modell an.
-                - Je kleiner der RMSE, desto besser die Anpassung.
-                ''')
-
-        except Exception as e:
-            st.error(f"Fehler beim Fit: {e}")
-
-    # --- Achsen & Legende ---
-    ax.set_xlabel("Zeit [s]")
-    ax.set_ylabel("Temperatur [°C]")
-    ax.set_title("Temperaturverlauf")
-    ax.legend()
-
-    # --- Plot anzeigen ---
-    plot_placeholder.pyplot(fig)
-
-
-
-st.markdown("""---""")
-
-st.subheader("🛠️ Feedback & Support")
+# -----------------------------
+# Anzeige der Ergebnisse
+# -----------------------------
+st.markdown("### Berechnete Kennzahlen:")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("""
-    <a href="https://github.com/dubbehendrik/temperaturprofil/issues/new?template=bug_report.yml" target="_blank">
-        <button style="padding: 0.5rem 1rem; background-color: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            🐞 Bug melden
-        </button>
-    </a>
-    """, unsafe_allow_html=True)
-
+    st.latex(f"Oh = {Oh:.2e}")
+    st.latex(f"K_b = {Kb:.2e}")
 with col2:
-    st.markdown("""
-    <a href="https://github.com/dubbehendrik/temperaturprofil/issues/new?template=feature_request.yml" target="_blank">
-        <button style="padding: 0.5rem 1rem; background-color: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            ✨ Feature anfragen
-        </button>
-    </a>
-    """, unsafe_allow_html=True)
+    st.latex(f"We = {We:.2e}")
+    st.latex(f"B = {B:.2e}")
 
+st.markdown("### Filmdicke am Glockenrand:")
+st.latex(f"\\delta = {delta:.2f} \\, \\mu m")
 
-st.markdown("""---""")
+# -----------------------------
+# Plot: Diagramm & Betriebspunkt
+# -----------------------------
+with col_plot:
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-st.markdown("""
-<div style="font-size: 0.5rem; color: gray; text-align: center; line-height: 1.4;">
-<b>Disclaimer:</b><br>
-Diese Anwendung dient ausschließlich zu Demonstrations- und Lehrzwecken. 
-Es wird keine Gewähr für die Richtigkeit, Vollständigkeit oder Aktualität der bereitgestellten Inhalte übernommen.<br>
-Die Nutzung erfolgt auf eigene Verantwortung.<br>
-Eine kommerzielle Verwendung ist ausdrücklich nicht gestattet.<br>
-Für Schäden materieller oder ideeller Art, die durch die Nutzung der App entstehen, wird keine Haftung übernommen.
-<br><br>Prof. Dr.-Ing. Hendrik Dubbe
-</div>
-""", unsafe_allow_html=True)
+    # Hintergrundbild laden (dein Diagramm, z.B. von GitHub)
+    img_url = "https://github.com/dubbehendrik/Zerfallsarten/blob/main/Diagramm.jpg"
+    img = mpimg.imread(img_url)
+
+    ax.imshow(img, extent=[1e-4, 1e2, 1e-2, 3e0], aspect='auto', zorder=0)
+
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(1e-4, 1e2)
+    ax.set_ylim(1e-2, 3e0)
+
+    ax.set_xlabel("Lackkennzahl")
+    ax.set_ylabel("Betriebskennzahl")
+
+    # Betriebspunkt plotten
+    ax.plot(Kb, B, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
+
+    ax.legend()
+    st.pyplot(fig)
