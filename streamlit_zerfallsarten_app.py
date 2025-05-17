@@ -90,13 +90,13 @@ col_plot, col_values = st.columns([0.6, 0.4])
 with col_values:
     st.subheader("Parameter")
 
-    V_LK = st.number_input(r"Lackvolumenstrom $\dot{V}_{LK}$ [ml/min]", value=40.0, step=1.0)
-    n = st.number_input(r"Drehzahl $n$ [1/min]", value=40000.0, step=1.0)
-    d = st.number_input(r"Glockendurchmesser $D$ [mm]", value=60.0, step=1.0)
-    beta = st.number_input(r"Konturwinkel $\beta$ [°]", value=55.0, step=1.0)
-    rho_LK = st.number_input(r"Lackdichte $\rho_{LK}$ [kg/m³]", value=1100.0, step=1.0)
-    eta_LK = st.number_input(r"Viskosität $\eta_{LK}$ [mPa·s]", value=10.0, step=1.0)
-    sigma = st.number_input(r"Oberflächenspannung $\sigma$ [mN/m]", value=30.0, step=1.0)
+    V_LK = st.number_input(r"Lackvolumenstrom $\dot{V}_{LK}$ [ml/min]", value=40.0, step=10.0, format="%.1f")
+    n = st.number_input(r"Drehzahl $n$ [1/min]", value=40000.0, step=1000.0, format="%.1f")
+    d = st.number_input(r"Glockendurchmesser $D$ [mm]", value=60.0, step=1.0, format="%.1f")
+    beta = st.number_input(r"Konturwinkel $\beta$ [°]", value=55.0, step=1.0, format="%.1f")
+    rho_LK = st.number_input(r"Lackdichte $\rho_{LK}$ [kg/m³]", value=1100.0, step=1.0, format="%.1f")
+    eta_LK = st.number_input(r"Viskosität $\eta_{LK}$ [mPa·s]", value=30.0, step=1.0, format="%.1f")
+    sigma = st.number_input(r"Oberflächenspannung $\sigma$ [mN/m]", value=30.0, step=1.0, format="%.1f")
 
 # -----------------------------
 # Umrechnungen & Berechnungen
