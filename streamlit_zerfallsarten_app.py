@@ -19,9 +19,16 @@ def berechne_filmdicke(V_LK, eta_LK, rho_LK, omega, r, beta_deg):
     return delta * 1e6  # in µm
 
 def berechne_kennzahlen(eta_LK, rho_LK, sigma, D, v_LK, omega):
-    Oh = eta_LK / np.sqrt(rho_LK * sigma * D)
-    Kb = (v_LK**2 * rho_LK) / (sigma * D**3 * omega**2 * D**3 * rho_LK)
-    We = (rho_LK * v_LK**2 * D) / sigma
+    # Ohnesorge-Zahl (Oh)
+    Oh = eta_LK_Pas / np.sqrt(rho_LK * sigma_Npm * D_m)
+    
+    # Kantenbelastung (Kb) - korrigiert
+    Kb = (V_LK_m3s**2 * rho_LK) / (sigma_Npm * D_m**3)
+    
+    # Weber-Zahl (We)
+    We = (omega**2 * D_m**3 * rho_LK) / sigma_Npm
+    
+    # Betriebskennzahl (B)
     B = (We**0.5) * (Kb**(5/6)) * (Oh**(10/36))
     return Oh, Kb, We, B
 
@@ -84,7 +91,7 @@ V_LK_m3s = V_LK / 1e6 / 60  # ml/min -> m³/s
 eta_LK_Pas = eta_LK / 1000   # mPa·s -> Pa·s
 sigma_Npm = sigma / 1000     # mN/m -> N/m
 D_m = d / 1000               # mm -> m
-r_m = D_m / 2                # Radius in m
+omega = 2 * np.pi * n / 60   # [1/min] -> [1/s]
 
 omega = berechne_omega(n)
 delta = berechne_filmdicke(V_LK_m3s, eta_LK_Pas, rho_LK, omega, r_m, beta)
