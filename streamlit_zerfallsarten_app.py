@@ -101,7 +101,7 @@ delta = berechne_filmdicke(V_LK_m3s, eta_LK_Pas, rho_LK, omega, r_m, beta)
 # Für Betriebspunkt beliebige v_LK (z.B. Umfangsgeschwindigkeit)
 v_LK = omega * r_m
 
-Oh, Kb, We, B = berechne_kennzahlen(eta_LK_Pas, rho_LK, sigma_Npm, D_m, v_LK, omega)
+Oh, Kb, We, B = berechne_kennzahlen(eta_LK_Pas, rho_LK, sigma_Npm, D_m, V_LK_m3s, omega)
 
 # -----------------------------
 # Anzeige der Ergebnisse
