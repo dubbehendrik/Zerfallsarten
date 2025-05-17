@@ -109,7 +109,13 @@ st.latex(f"\\delta = {delta:.2f} \\, \\mu m")
 with col_plot:
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Hintergrundbild laden (dein Diagramm, z.B. von GitHub)
+    # Achsen-Skalierung & Limits zuerst setzen!
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(1e-4, 1e2)
+    ax.set_ylim(1e-2, 3e0)
+
+    # Hintergrundbild laden (dein Diagramm von GitHub)
     img_url = "https://raw.githubusercontent.com/dubbehendrik/Zerfallsarten/main/Diagramm.jpg"
     response = requests.get(img_url)
     
@@ -119,18 +125,18 @@ with col_plot:
     else:
         st.error("Fehler: Bild konnte nicht geladen werden. Prüfe den Link.")
 
+    # Jetzt erst das Bild mit extent passend zur Skala einfügen:
     ax.imshow(img, extent=[1e-4, 1e2, 1e-2, 3e0], aspect='auto', zorder=0)
 
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlim(1e-4, 1e2)
-    ax.set_ylim(1e-2, 3e0)
-
+    # Achsenbeschriftung
     ax.set_xlabel("Lackkennzahl")
     ax.set_ylabel("Betriebskennzahl")
 
     # Betriebspunkt plotten
     ax.plot(Kb, B, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
 
+    # Legende
     ax.legend()
+
+    # Plot anzeigen
     st.pyplot(fig)
