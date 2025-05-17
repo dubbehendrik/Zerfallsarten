@@ -56,18 +56,26 @@ st.title("Zerfallsarten an Rotationsglocke")
 
 with st.expander("ℹ️ Hinweise zur Verwendung"):
     st.markdown("""
-Diese App berechnet dimensionslose Kennzahlen für die Lackzerstäubung an Rotationsglocken:
+Diese App berechnet dimensionslose Kennzahlen für die Lackzerstäubung an Rotationsglocken.
+Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter Viskosität berechnet.
 
-- **Ohnesorge-Zahl (Oh)**
-- **Kantenbelastung (K_b)**
-- **Weber-Zahl (We)**
-- **Betriebskennzahl (B)**
-
-Zusätzlich wird die **Filmdicke am Glockenrand (δ)** berechnet.
-
-Formel für die Filmdicke:
+### Formeln:
 """)
+    st.markdown("**Filmdicke ($$\delta$$):**")
     st.latex(r"\delta = \sqrt[3]{ \frac{3 \cdot \dot{V}_{LK} \cdot \eta_{LK} }{ \rho_{LK} \cdot 2\pi \omega^2 r^2 \cdot \sin(\beta) } }")
+
+    st.markdown("**Ohnesorge-Zahl (Oh):**")
+    st.latex(r"Oh = \frac{ \eta_{LK} }{ \sqrt{ \rho_{LK} \cdot \sigma \cdot D } }")
+
+    st.markdown("**Kantenbelastung (K_b):**")
+    st.latex(r"K_b = \frac{ \dot{V}_{LK}^2 \cdot \rho_{LK} }{ \sigma \cdot D^3 }")
+
+    st.markdown("**Weber-Zahl (We):**")
+    st.latex(r"We = \frac{ \omega^2 \cdot D^3 \cdot \rho_{LK} }{ \sigma }")
+
+    st.markdown("**Betriebskennzahl (B):**")
+    st.latex(r"B = \sqrt{We} \cdot K_b^{5/6} \cdot Oh^{10/36}")
+
     st.markdown("""
 Abbildung in Anlehnung an:  
 Weckerle, G., Dissertation, Universität Stuttgart, 2003 (Pulver-Slurry).
