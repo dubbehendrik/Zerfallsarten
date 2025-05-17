@@ -90,7 +90,7 @@ col_plot, col_values = st.columns([0.6, 0.4])
 with col_values:
     st.subheader("Parameter")
 
-    V_LK = st.number_input(r"Lackvolumenstrom $\dot{V}_{LK}$ [ml/min]", value=40.0, step=10.0, format="%.1f")
+    V_LK = st.number_input(r"Lackvolumenstrom $\dot{V}_{LK}$ [ml/min]", value=50.0, step=10.0, format="%.1f")
     n = st.number_input(r"Drehzahl $n$ [1/min]", value=40000.0, step=1000.0, format="%.1f")
     d = st.number_input(r"Glockendurchmesser $D$ [mm]", value=60.0, step=1.0, format="%.1f")
     beta = st.number_input(r"Konturwinkel $\beta$ [°]", value=55.0, step=1.0, format="%.1f")
