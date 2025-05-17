@@ -52,7 +52,7 @@ col_title, col_logo = st.columns([4, 1])
 with col_logo:
     st.image("HSE-Logo.jpg", width=1000)
 
-st.title("Zerfallsarten an Rotationsglocke")
+st.title("Zerfallsarten an einer Rotationsglocke")
 
 with st.expander("ℹ️ Hinweise zur Verwendung"):
     st.markdown("""
