@@ -140,7 +140,7 @@ with col_plot:
     ax.axis('off')  # keine Achsen mehr
 
     # Betriebspunkt Pixel-Koordinaten berechnen
-    x_pix, y_pix = log_to_pixel(Kb, B, 170, 601, 1050, 50)
+    x_pix, y_pix = log_to_pixel(Oh, B, 170, 601, 1050, 50)
 
     # Betriebspunkt plotten
     ax.plot(x_pix, y_pix, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
