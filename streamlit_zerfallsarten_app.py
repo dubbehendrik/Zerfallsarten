@@ -112,10 +112,11 @@ with col_plot:
     img_url = "https://raw.githubusercontent.com/dubbehendrik/Zerfallsarten/main/Diagramm.jpg"
     response = requests.get(img_url)
     
-    if response.status_code == 200:
-        img = mpimg.imread(BytesIO(response.content))
+    if response.status_code == 200 and response.headers['Content-Type'].startswith('image'):
+        image_pil = Image.open(BytesIO(response.content))
+        img = np.array(image_pil)
     else:
-        st.error("Bild konnte nicht geladen werden.")
+        st.error("Fehler: Bild konnte nicht geladen werden. Prüfe den Link.")
 
     ax.imshow(img, extent=[1e-4, 1e2, 1e-2, 3e0], aspect='auto', zorder=0)
 
