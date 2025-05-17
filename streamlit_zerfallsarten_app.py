@@ -25,6 +25,15 @@ def berechne_kennzahlen(eta_LK, rho_LK, sigma, D, v_LK, omega):
     B = (We**0.5) * (Kb**(5/6)) * (Oh**(10/36))
     return Oh, Kb, We, B
 
+def log_to_pixel(x_log, y_log, x0_pix, y0_pix, x1_pix, y1_pix):
+    # X-Mapping (logarithmisch)
+    x_pix = x0_pix + (np.log10(x_log) - np.log10(1e-4)) / (np.log10(1e2) - np.log10(1e-4)) * (x1_pix - x0_pix)
+    
+    # Y-Mapping (logarithmisch)
+    y_pix = y0_pix + (np.log10(y_log) - np.log10(1e-2)) / (np.log10(3) - np.log10(1e-2)) * (y1_pix - y0_pix)
+    
+    return x_pix, y_pix
+
 # -----------------------------
 # App Layout & Benutzeroberfläche
 # -----------------------------
@@ -109,13 +118,7 @@ st.latex(f"\\delta = {delta:.2f} \\, \\mu m")
 with col_plot:
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Achsen-Skalierung & Limits zuerst setzen!
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlim(1e-4, 1e2)
-    ax.set_ylim(1e-2, 3e0)
-
-    # Hintergrundbild laden (dein Diagramm von GitHub)
+    # Bild normal als Hintergrund anzeigen (ohne extent, ohne Log)
     img_url = "https://raw.githubusercontent.com/dubbehendrik/Zerfallsarten/main/Diagramm.jpg"
     response = requests.get(img_url)
     
@@ -125,18 +128,13 @@ with col_plot:
     else:
         st.error("Fehler: Bild konnte nicht geladen werden. Prüfe den Link.")
 
-    # Jetzt erst das Bild mit extent passend zur Skala einfügen:
-    ax.imshow(img, extent=[1e-4, 1e2, 1e-2, 3e0], aspect='auto', zorder=0)
+    ax.imshow(img)
+    ax.axis('off')  # keine Achsen mehr
 
-    # Achsenbeschriftung
-    ax.set_xlabel("Lackkennzahl")
-    ax.set_ylabel("Betriebskennzahl")
+    # Betriebspunkt umrechnen in Pixel-Koordinaten
+    x_pix, y_pix = log_to_pixel(Kb, B, 170, 119, 1050, 670)
 
-    # Betriebspunkt plotten
-    ax.plot(Kb, B, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
+    # Punkt zeichnen (in Pixel-Koordinaten!)
+    ax.plot(x_pix, y_pix, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
 
-    # Legende
-    ax.legend()
-
-    # Plot anzeigen
     st.pyplot(fig)
