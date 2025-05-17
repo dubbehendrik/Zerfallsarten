@@ -79,7 +79,7 @@ Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter 
 
     st.markdown("""
 Abbildung in Anlehnung an:  
-Weckerle, G., Dissertation, Universität Stuttgart, 2003 (Pulver-Slurry).
+Weckerle, G., Dissertation, Universität Stuttgart, 2003.
 """)
 
 # -----------------------------
