@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import requests
+from io import BytesIO
 
 # -----------------------------
 # Funktionen für Berechnungen
@@ -108,7 +110,12 @@ with col_plot:
 
     # Hintergrundbild laden (dein Diagramm, z.B. von GitHub)
     img_url = "https://github.com/dubbehendrik/Zerfallsarten/blob/main/Diagramm.jpg"
-    img = mpimg.imread(img_url)
+    response = requests.get(img_url)
+    
+    if response.status_code == 200:
+        img = mpimg.imread(BytesIO(response.content))
+    else:
+        st.error("Bild konnte nicht geladen werden.")
 
     ax.imshow(img, extent=[1e-4, 1e2, 1e-2, 3e0], aspect='auto', zorder=0)
 
