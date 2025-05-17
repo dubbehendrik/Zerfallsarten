@@ -35,7 +35,7 @@ def berechne_kennzahlen(eta_LK_Pas, rho_LK, sigma_Npm, D_m, V_LK_m3s, omega):
 
 def log_to_pixel(x_log, y_log, x0_pix, y0_pix, x1_pix, y1_pix):
     # X-Mapping (logarithmisch)
-    x_pix = x0_pix + (np.log10(x_log) - np.log10(1e-4)) / (np.log10(1e2) - np.log10(1e-4)) * (x1_pix - x0_pix)
+    x_pix = x0_pix + (np.log10(x_log) - np.log10(1e-4)) / (np.log10(1e0) - np.log10(1e-4)) * (x1_pix - x0_pix)
     
     # Y-Mapping (logarithmisch)
     y_pix = y0_pix + (np.log10(y_log) - np.log10(1e-2)) / (np.log10(3) - np.log10(1e-2)) * (y1_pix - y0_pix)
