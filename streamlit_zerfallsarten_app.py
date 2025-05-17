@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import requests
 from io import BytesIO
+from PIL import Image
 
 # -----------------------------
 # Funktionen für Berechnungen
