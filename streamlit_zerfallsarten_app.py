@@ -61,9 +61,6 @@ Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter 
 
 ### Formeln:
 """)
-    st.markdown("**Filmdicke ($$\delta$$):**")
-    st.latex(r"\delta = \sqrt[3]{ \frac{3 \cdot \dot{V}_{LK} \cdot \eta_{LK} }{ \rho_{LK} \cdot 2\pi \omega^2 r^2 \cdot \sin(\beta) } }")
-
     st.markdown("**Ohnesorge-Zahl (Oh):**")
     st.latex(r"Oh = \frac{ \eta_{LK} }{ \sqrt{ \rho_{LK} \cdot \sigma \cdot D } }")
 
@@ -75,6 +72,10 @@ Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter 
 
     st.markdown("**Betriebskennzahl (B):**")
     st.latex(r"B = We^{1/2} \cdot K_b^{5/6} \cdot Oh^{10/36}")
+
+    st.markdown("**Filmdicke ($$\delta$$):**")
+    st.latex(r"\delta = \sqrt[3]{ \frac{3 \cdot \dot{V}_{LK} \cdot \eta_{LK} }{ \rho_{LK} \cdot 2\pi \omega^2 r^2 \cdot \sin(\beta) } }")
+
 
     st.markdown("""
 Abbildung in Anlehnung an:  
@@ -89,13 +90,13 @@ col_plot, col_values = st.columns([0.6, 0.4])
 with col_values:
     st.subheader("Parameter")
 
-    V_LK = st.number_input("Lackvolumenstrom [ml/min]", value=60.0)
-    n = st.number_input("Drehzahl [1/min]", value=50000.0)
-    d = st.number_input("Glockendurchmesser [mm]", value=60.0)
-    beta = st.number_input("Konturwinkel [°]", value=55.0)
-    rho_LK = st.number_input("Lackdichte [kg/m³]", value=1300.0)
-    eta_LK = st.number_input("Viskosität [mPa·s]", value=20.0)
-    sigma = st.number_input("Oberflächenspannung [mN/m]", value=30.0)
+    V_LK = st.number_input(r"Lackvolumenstrom $\dot{V}_{LK}$ [ml/min]", value=40.0, step=1.0)
+    n = st.number_input(r"Drehzahl $n$ [1/min]", value=40000.0, step=1.0)
+    d = st.number_input(r"Glockendurchmesser $D$ [mm]", value=60.0, step=1.0)
+    beta = st.number_input(r"Konturwinkel $\beta$ [°]", value=55.0, step=1.0)
+    rho_LK = st.number_input(r"Lackdichte $\rho_{LK}$ [kg/m³]", value=1100.0, step=1.0)
+    eta_LK = st.number_input(r"Viskosität $\eta_{LK}$ [mPa·s]", value=10.0, step=1.0)
+    sigma = st.number_input(r"Oberflächenspannung $\sigma$ [mN/m]", value=30.0, step=1.0)
 
 # -----------------------------
 # Umrechnungen & Berechnungen
