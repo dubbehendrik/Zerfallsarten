@@ -74,7 +74,7 @@ Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter 
     st.latex(r"We = \frac{ \omega^2 \cdot D^3 \cdot \rho_{LK} }{ \sigma }")
 
     st.markdown("**Betriebskennzahl (B):**")
-    st.latex(r"B = \sqrt{We} \cdot K_b^{5/6} \cdot Oh^{10/36}")
+    st.latex(r"B = We^{1/2} \cdot K_b^{5/6} \cdot Oh^{10/36}")
 
     st.markdown("""
 Abbildung in Anlehnung an:  
