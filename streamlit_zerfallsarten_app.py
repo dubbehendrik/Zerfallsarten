@@ -47,6 +47,11 @@ def log_to_pixel(x_log, y_log, x0_pix, y0_pix, x1_pix, y1_pix):
 
 st.set_page_config(layout="wide")
 
+# --- Layout: Logo und Titel ---
+col_title, col_logo = st.columns([4, 1])
+with col_logo:
+    st.image("HSE-Logo.jpg", width=1000)
+
 st.title("Zerfallsarten an Rotationsglocke")
 
 with st.expander("ℹ️ Hinweise zur Verwendung"):
@@ -146,3 +151,46 @@ with col_plot:
     ax.plot(x_pix, y_pix, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
 
     st.pyplot(fig)
+
+
+# --- Feedback & Support ---
+st.markdown("""---""")
+st.subheader("🛠️ Feedback & Support")
+
+col_fb1, col_fb2 = st.columns(2)
+
+with col_fb1:
+    st.markdown("""
+    <a href="https://github.com/dubbehendrik/Zerfallsarten/issues/new?template=bug_report.yml" target="_blank">
+        <button style="padding: 0.5rem 1rem; background-color: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            🐞 Bug melden
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
+
+with col_fb2:
+    st.markdown("""
+    <a href="https://github.com/dubbehendrik/Zerfallsarten/issues/new?template=feature_request.yml" target="_blank">
+        <button style="padding: 0.5rem 1rem; background-color: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            ✨ Feature anfragen
+        </button>
+    </a>
+    """, unsafe_allow_html=True)
+
+# --- Disclaimer ---
+st.markdown("""---""")
+st.markdown("""
+<div style="font-size: 0.5rem; color: gray; text-align: center; line-height: 1.4;">
+<b>Disclaimer:</b><br>
+Diese Anwendung dient ausschließlich zu Demonstrations- und Lehrzwecken. 
+Es wird keine Gewähr für die Richtigkeit, Vollständigkeit oder Aktualität der bereitgestellten Inhalte übernommen.<br>
+Die Nutzung erfolgt auf eigene Verantwortung.<br>
+Eine kommerzielle Verwendung ist ausdrücklich nicht gestattet.<br>
+Für Schäden materieller oder ideeller Art, die durch die Nutzung der App entstehen, wird keine Haftung übernommen.
+<br><br>
+<a href="mailto:hendrik.dubbe@hs-esslingen.de?subject=Anfrage%20zu%20Zerfallsarten-App" 
+   style="color: gray; text-decoration: none;">
+Prof. Dr.-Ing. Hendrik Dubbe
+</a>
+</div>
+""", unsafe_allow_html=True)
