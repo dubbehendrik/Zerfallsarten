@@ -18,11 +18,11 @@ def berechne_filmdicke(V_LK, eta_LK, rho_LK, omega, r, beta_deg):
     delta = ((3 * V_LK * eta_LK) / (rho_LK * 2 * np.pi * omega**2 * r**2 * np.sin(beta_rad))) ** (1/3)
     return delta * 1e6  # in µm
 
-def berechne_kennzahlen(eta_LK, rho_LK, sigma, D, v_LK, omega):
+def berechne_kennzahlen(eta_LK_Pas, rho_LK, sigma_Npm, D_m, V_LK_m3s, omega):
     # Ohnesorge-Zahl (Oh)
     Oh = eta_LK_Pas / np.sqrt(rho_LK * sigma_Npm * D_m)
     
-    # Kantenbelastung (Kb) - korrigiert
+    # Kantenbelastung (Kb)
     Kb = (V_LK_m3s**2 * rho_LK) / (sigma_Npm * D_m**3)
     
     # Weber-Zahl (We)
@@ -30,6 +30,7 @@ def berechne_kennzahlen(eta_LK, rho_LK, sigma, D, v_LK, omega):
     
     # Betriebskennzahl (B)
     B = (We**0.5) * (Kb**(5/6)) * (Oh**(10/36))
+    
     return Oh, Kb, We, B
 
 def log_to_pixel(x_log, y_log, x0_pix, y0_pix, x1_pix, y1_pix):
@@ -94,6 +95,7 @@ D_m = d / 1000               # mm -> m
 omega = 2 * np.pi * n / 60   # [1/min] -> [1/s]
 
 omega = berechne_omega(n)
+r_m = D_m / 2  # Radius für Filmdicke
 delta = berechne_filmdicke(V_LK_m3s, eta_LK_Pas, rho_LK, omega, r_m, beta)
 
 # Für Betriebspunkt beliebige v_LK (z.B. Umfangsgeschwindigkeit)
