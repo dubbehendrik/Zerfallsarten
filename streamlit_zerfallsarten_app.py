@@ -109,7 +109,7 @@ with col_plot:
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Hintergrundbild laden (dein Diagramm, z.B. von GitHub)
-    img_url = "Diagramm.jpg"
+    img_url = "https://raw.githubusercontent.com/dubbehendrik/Zerfallsarten/main/Diagramm.jpg"
     response = requests.get(img_url)
     
     if response.status_code == 200:
