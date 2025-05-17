@@ -33,7 +33,6 @@ def log_to_pixel(x_log, y_log, x0_pix, y0_pix, x1_pix, y1_pix):
     y_pix = y0_pix + (np.log10(y_log) - np.log10(1e-2)) / (np.log10(3) - np.log10(1e-2)) * (y1_pix - y0_pix)
     
     return x_pix, y_pix
-
 # -----------------------------
 # App Layout & Benutzeroberfläche
 # -----------------------------
@@ -118,7 +117,7 @@ st.latex(f"\\delta = {delta:.2f} \\, \\mu m")
 with col_plot:
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Bild normal als Hintergrund anzeigen (ohne extent, ohne Log)
+    # Bild normal einfügen
     img_url = "https://raw.githubusercontent.com/dubbehendrik/Zerfallsarten/main/Diagramm.jpg"
     response = requests.get(img_url)
     
@@ -131,10 +130,10 @@ with col_plot:
     ax.imshow(img)
     ax.axis('off')  # keine Achsen mehr
 
-    # Betriebspunkt umrechnen in Pixel-Koordinaten
-    x_pix, y_pix = log_to_pixel(Kb, B, 170, 119, 1050, 670)
+    # Betriebspunkt Pixel-Koordinaten berechnen
+    x_pix, y_pix = log_to_pixel(Kb, B, 170, 601, 1050, 50)
 
-    # Punkt zeichnen (in Pixel-Koordinaten!)
+    # Betriebspunkt plotten
     ax.plot(x_pix, y_pix, 'ro', markersize=10, label="Betriebspunkt", zorder=1)
 
     st.pyplot(fig)
