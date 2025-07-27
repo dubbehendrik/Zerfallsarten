@@ -79,7 +79,7 @@ Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter 
 
     st.markdown("""
 Abbildung in Anlehnung an:  
-Weckerle, G., Dissertation, Universität Stuttgart, 2003.
+Weckerle, G.: Beschichtung hochwertiger Karosserieoberflächen mit Pulver Slurry, Dissertation, Universität Stuttgart, 2003
 """)
 
 # -----------------------------
