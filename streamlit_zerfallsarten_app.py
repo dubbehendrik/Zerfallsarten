@@ -64,7 +64,7 @@ Zusätzlich wird die **Filmdicke am Glockenrand (δ)** unter Annahme konstanter 
     st.markdown("**Ohnesorge-Zahl (Oh):**")
     st.latex(r"Oh = \frac{ \eta_{LK} }{ \sqrt{ \rho_{LK} \cdot \sigma \cdot D } }")
 
-    st.markdown("**Kantenbelastung (K_b):**")
+    st.markdown("**Kantenbelastung ($$K_b$$):**")
     st.latex(r"K_{b} = \frac{ \dot{V}_{LK}^2 \cdot \rho_{LK} }{ \sigma \cdot D^3 }")
 
     st.markdown("**Weber-Zahl (We):**")
