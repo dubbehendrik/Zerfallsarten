@@ -1,9 +1,6 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import requests
-from io import BytesIO
 from PIL import Image
 
 # -----------------------------
@@ -98,6 +95,10 @@ with col_values:
     eta_LK = st.number_input(r"Viskosität $\eta_{LK}$ [mPa·s]", value=30.0, step=1.0, format="%.1f")
     sigma = st.number_input(r"Oberflächenspannung $\sigma$ [mN/m]", value=30.0, step=1.0, format="%.1f")
 
+if any(value <= 0 for value in (V_LK, n, d, rho_LK, eta_LK, sigma)) or not 0 < beta < 180:
+    st.error("Volumenstrom, Drehzahl, Durchmesser, Dichte, Viskosität und Oberflächenspannung müssen positiv sein; der Konturwinkel muss zwischen 0° und 180° liegen.")
+    st.stop()
+
 # -----------------------------
 # Umrechnungen & Berechnungen
 # -----------------------------
@@ -140,17 +141,9 @@ st.latex(f"\\delta = {delta:.2f} \\, \\mu m")
 with col_plot:
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Bild normal einfügen
-    img_url = "https://raw.githubusercontent.com/dubbehendrik/Zerfallsarten/main/Diagramm.jpg"
-    response = requests.get(img_url)
-    
-    if response.status_code == 200 and response.headers['Content-Type'].startswith('image'):
-        image_pil = Image.open(BytesIO(response.content))
-        img = np.array(image_pil)
-    else:
-        st.error("Fehler: Bild konnte nicht geladen werden. Prüfe den Link.")
-
-    ax.imshow(img)
+    # Das Diagramm gehört zum Repository und ist ohne Netzabruf verfügbar.
+    with Image.open("Diagramm.jpg") as diagram:
+        ax.imshow(diagram)
     ax.axis('off')  # keine Achsen mehr
 
     # Betriebspunkt Pixel-Koordinaten berechnen
